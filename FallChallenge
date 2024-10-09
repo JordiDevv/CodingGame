@@ -28,31 +28,36 @@ typedef struct building_type
     int    y;
     int    n_astronauts;
     int    astronauts[20];
+    int    types_astr;
     int    tube;
 }   building_struct;
 
 building_struct **buildings;
 int             b_counter = 0;
 int             n_pod = 0;
+int             t_counter = 0;
 
 int ctoi(char   c)
 {
     return (c - 48);
 }
 
-int match_types(int in)
+int match_types(int in, int *d)
 {
-    for (int i = 0; i < 20; i++)
+    while (*d < 20)
     {
-        if (buildings[in]->astronauts[i])
+        if (buildings[in]->astronauts[*d])
         {
-            fprintf(stderr, "Llega");
             for (int j = 0; j < b_counter; j++)
             {
-                if (buildings[j]->type == i + 1)
+                if (buildings[j]->type == *d + 1)
+                {
+                    (*d)++;
                     return (j);
+                }
             }
         }
+        (*d)++;
     }
     return (0);
 }
@@ -86,18 +91,37 @@ void    add_building(char *building_properties)
         for (int i = 0; i < 20; i++)
             buildings[b_counter]->astronauts[i] = 0;
         int j = buildings[b_counter]->n_astronauts;
-            while (j > 0)
-            {
-                int type_astronaut = parse_properties(building_properties, &in);
-                buildings[b_counter]->astronauts[type_astronaut - 1]++;
-                j--;
-            }
+        while (j > 0)
+        {
+            int type_astronaut = parse_properties(building_properties, &in);
+            buildings[b_counter]->astronauts[type_astronaut - 1]++;
+            j--;
+        }
+        for (int i = 0; i < 20; i++)
+        {
+            if(buildings[b_counter]->astronauts[i])
+                buildings[b_counter]->types_astr++;
+        }
     }
     else
         buildings[b_counter]->n_astronauts = 0;
     buildings[b_counter]->tube = 0;
     b_counter++;
 }
+
+/*void    build_tubes()
+{
+    if (!buildings[t_counter]->tube)
+    {
+        int dst_route = t_counter + 1;
+        if (dst_route >= b_counter)
+            dst_route = 0;
+        printf("TUBE %i %i; POD %i %i %i;\n", t_counter, dst_route, n_pod, t_counter, dst_route);
+        n_pod++;
+        buildings[t_counter]->tube = 1;
+        t_counter++;
+    }
+}*/
 
 int main()
 {
@@ -107,7 +131,7 @@ int main()
     {
         int resources;
         scanf("%d", &resources);
-        fprintf(stderr, "Llega");//El scanf se raya porque uso el printf en un bucle???
+        fprintf(stderr, "Llega");
 
         int num_travel_routes;
         scanf("%d", &num_travel_routes); fgetc(stdin);
@@ -138,24 +162,34 @@ int main()
 
         for (int i = 0; i < b_counter; i++)
         {
-            if (!buildings[i]->tube)
+            if (buildings[i]->type == 0)
             {
-                int dst_route = i + 1;
-                if (dst_route >= b_counter)
-                    dst_route = 0;
-                printf("TUBE %i %i; POD %i %i %i %i %i; ", i, dst_route, n_pod, i, dst_route, i, dst_route);
-                n_pod++;
-                buildings[i]->tube = 1;
+                int j = buildings[i]->types_astr;
+                int d = 0;
+                match_types(i, &d);
+                while (j > 0 && d <= 19)
+                {
+                    printf("TUBE %i %i;\n", i, d);
+                    match_types(i, &d);
+                }
             }
         }
-        /*for (int i = 0; i < b_counter; i++)
+        //No parece muy óptimo, pero parece que hemos conseguido que construya tuberías, \
+            correctamente, de manera automatizada(terminar de comprobar). Ahora habría que \
+            llenar de POD's.
+
+        /*if (t_counter < b_counter)
+            build_tubes();
+        int c = 0;
+        while (c < b_counter)
         {
-            int d = match_types(i);
+            int d = match_types(c);
             if (d)
             {
-                
-                printf("TUBE 0 %i", d);
+                printf("TUBE %i %i;\n",c, d);
+                continue ;
             }
+            c++;
         }*/
         /*if (num_new_buildings)
         {

@@ -22,22 +22,22 @@
 }*/
 typedef struct building_type
 {
-    char    type;
-    char    id;
-    char    x;
-    char    y;
-    char    n_astronauts;
-    int     astronauts[20];
+    int    type;
+    int    id;
+    int    x;
+    int    y;
+    int    n_astronauts;
+    int    astronauts[20];
+    int    tube;
 }   building_struct;
 
 building_struct **buildings;
 int             b_counter = 0;
+int             n_pod = 0;
 
 int ctoi(char   c)
 {
-    if ((c < 91 && c > 64) || (c < 123 && c > 96))
-        return (c - 48);
-    return (0);
+    return (c - 48);
 }
 
 int match_types(int in)
@@ -57,39 +57,45 @@ int match_types(int in)
     return (0);
 }
 
+int parse_properties(char *building_properties, int *in)
+{
+    int r = 0;
+
+    while (building_properties[*in] >= '0' && building_properties[*in] <= '9')
+    {
+        r *= 10;
+        r += ctoi(building_properties[*in]);
+        (*in)++;
+    }
+    (*in)++;
+    return (r);
+}
+
 void    add_building(char *building_properties)
 {
+    int in = 0;
+
     buildings[b_counter] = malloc(sizeof(building_struct));
-    buildings[b_counter]->type = building_properties[0];
-    buildings[b_counter]->id = building_properties[2];
-    buildings[b_counter]->x = building_properties[4];
-    buildings[b_counter]->y = building_properties[6];
+    buildings[b_counter]->type = parse_properties(building_properties, &in);
+    buildings[b_counter]->id = parse_properties(building_properties, &in);
+    buildings[b_counter]->x = parse_properties(building_properties, &in);
+    buildings[b_counter]->y = parse_properties(building_properties, &in);
     if (buildings[b_counter]->type == 0)
     {
-        fprintf(stderr, "Llega");
-        buildings[b_counter]->n_astronauts = building_properties[8];
+        buildings[b_counter]->n_astronauts = parse_properties(building_properties, &in);
         for (int i = 0; i < 20; i++)
             buildings[b_counter]->astronauts[i] = 0;
-        int i = 1;
-        while (i <= 20)
-        {
-            int j = 10;
-            while (building_properties[j])
+        int j = buildings[b_counter]->n_astronauts;
+            while (j > 0)
             {
-                if (ctoi(building_properties[j]) == i)
-                    buildings[b_counter]->astronauts[i - 1]++;
-                if (building_properties[j + 1])
-                    j += 2;
-                else
-                    j++;
+                int type_astronaut = parse_properties(building_properties, &in);
+                buildings[b_counter]->astronauts[type_astronaut - 1]++;
+                j--;
             }
-            i++;
-        }
     }
     else
-        buildings[b_counter]->n_astronauts = '0';
-    //for (int i = 0; i < 20; i++)
-            //fprintf(stderr, "%i", buildings[b_counter]->astronauts[i]);
+        buildings[b_counter]->n_astronauts = 0;
+    buildings[b_counter]->tube = 0;
     b_counter++;
 }
 
@@ -101,9 +107,10 @@ int main()
     {
         int resources;
         scanf("%d", &resources);
+        fprintf(stderr, "Llega");//El scanf se raya porque uso el printf en un bucle???
 
         int num_travel_routes;
-        scanf("%d", &num_travel_routes);
+        scanf("%d", &num_travel_routes); fgetc(stdin);
         for (int i = 0; i < num_travel_routes; i++) 
         {
             int building_id_1;
@@ -128,7 +135,20 @@ int main()
             scanf("%[^\n]", building_properties); fgetc(stdin);
             add_building(building_properties);
         }
+
         for (int i = 0; i < b_counter; i++)
+        {
+            if (!buildings[i]->tube)
+            {
+                int dst_route = i + 1;
+                if (dst_route >= b_counter)
+                    dst_route = 0;
+                printf("TUBE %i %i; POD %i %i %i %i %i; ", i, dst_route, n_pod, i, dst_route, i, dst_route);
+                n_pod++;
+                buildings[i]->tube = 1;
+            }
+        }
+        /*for (int i = 0; i < b_counter; i++)
         {
             int d = match_types(i);
             if (d)
@@ -136,14 +156,14 @@ int main()
                 
                 printf("TUBE 0 %i", d);
             }
-        }
+        }*/
         /*if (num_new_buildings)
         {
             if (buildi)
         }
             printf("TUBE 0 3;POD 2 0 3 0 3\n");*/
 
-        printf("TUBE 0 1; POD 0 0 1 0 1 0 1; TUBE 0 2; POD 1 0 2 0 2 0 2;\n");
+        //printf("TUBE 0 1; POD 0 0 1 0 1 0 1; TUBE 0 2; POD 1 0 2 0 2 0 2;\n");
 
         // Write an action using printf(). DON'T FORGET THE TRAILING \n
         // To debug: fprintf(stderr, "Debug messages...\n");

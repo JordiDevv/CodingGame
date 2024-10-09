@@ -125,7 +125,7 @@ void    add_building(char *building_properties)
 
 int main()
 {
-    buildings = malloc(3 * sizeof(building_struct*));
+    buildings = malloc(7 * sizeof(building_struct*));
     // game loop
     while (1) 
     {
@@ -150,6 +150,7 @@ int main()
             char pod_properties[201];
             scanf("%[^\n]", pod_properties); fgetc(stdin);
         }
+        n_pod = num_pods;
 
         int num_new_buildings;
         scanf("%d", &num_new_buildings); fgetc(stdin);
@@ -169,14 +170,17 @@ int main()
                 match_types(i, &d);
                 while (j > 0 && d <= 19)
                 {
-                    printf("TUBE %i %i;\n", i, d);
+                    int dst = d - 1;
+                    printf("TUBE %i %i;\n", i, dst);
+                    printf("POD %i %i %i %i %i %i %i %i %i;\n", n_pod, i, dst, i, dst, i, dst, i, dst);
+                    n_pod++;
                     match_types(i, &d);
                 }
             }
         }
-        //No parece muy óptimo, pero parece que hemos conseguido que construya tuberías, \
-            correctamente, de manera automatizada(terminar de comprobar). Ahora habría que \
-            llenar de POD's.
+        //Hemos conseguido que haga algo en casi todos los niveles, pero es poco eficaz; \
+            Además pierde utilidad en los niveles básicos, pero en general saca una mejor \
+            puntuación global.
 
         /*if (t_counter < b_counter)
             build_tubes();

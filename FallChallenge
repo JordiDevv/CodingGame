@@ -2,24 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 
 /**
  * Auto-generated code below aims at helping you parse
  * the standard input according to the problem statement.
  **/
 
-
-/*void    ft_strcpy(char **dst, char *src)
-{
-    int i = 0;
-
-    while (src[i])
-    {
-        (*dst)[i] = src[i];
-        i++;
-    }
-    (*dst)[i] = '\0';
-}*/
 typedef struct building_type
 {
     int    type;
@@ -36,6 +25,27 @@ building_struct **buildings;
 int             b_counter = 0;
 int             n_pod = 0;
 int             t_counter = 0;
+
+float distance(building_struct *p1, building_struct *p2) 
+{
+    return sqrt((p2->x - p1->x) * (p2->x - p1->x) + (p2->y - p1->y) * (p2->y - p1->y));
+}
+
+float pointOnSegment(building_struct *A, building_struct *B, building_struct *C) 
+{
+    float epsilon = 0.0000001;
+    return (-epsilon < distance(B, A) + distance(A, C) - distance(B, C) < epsilon);
+}
+
+int check_obstacles(int beg, int dst)
+{
+    for (int i = 0; i < b_counter; i++)
+    {
+        if (pointOnSegment(buildings[i], buildings[beg], buildings[dst]))
+            return (1);
+    }
+    return (0);
+}
 
 int ctoi(char   c)
 {
@@ -88,6 +98,7 @@ void    add_building(char *building_properties)
     if (buildings[b_counter]->type == 0)
     {
         buildings[b_counter]->n_astronauts = parse_properties(building_properties, &in);
+        buildings[b_counter]->types_astr = 0;
         for (int i = 0; i < 20; i++)
             buildings[b_counter]->astronauts[i] = 0;
         int j = buildings[b_counter]->n_astronauts;
@@ -109,29 +120,14 @@ void    add_building(char *building_properties)
     b_counter++;
 }
 
-/*void    build_tubes()
-{
-    if (!buildings[t_counter]->tube)
-    {
-        int dst_route = t_counter + 1;
-        if (dst_route >= b_counter)
-            dst_route = 0;
-        printf("TUBE %i %i; POD %i %i %i;\n", t_counter, dst_route, n_pod, t_counter, dst_route);
-        n_pod++;
-        buildings[t_counter]->tube = 1;
-        t_counter++;
-    }
-}*/
-
 int main()
 {
-    buildings = malloc(7 * sizeof(building_struct*));
+    buildings = malloc(15 * sizeof(building_struct*));
     // game loop
     while (1) 
     {
         int resources;
         scanf("%d", &resources);
-        fprintf(stderr, "Llega");
 
         int num_travel_routes;
         scanf("%d", &num_travel_routes); fgetc(stdin);
@@ -163,45 +159,31 @@ int main()
 
         for (int i = 0; i < b_counter; i++)
         {
-            if (buildings[i]->type == 0)
+            int j = buildings[i]->types_astr;
+            int d = 0;
+            int dst = 0;
+            while (buildings[i]->type == 0 && j > 0)
             {
-                int j = buildings[i]->types_astr;
-                int d = 0;
                 match_types(i, &d);
-                while (j > 0 && d <= 19)
+                dst = d;
+                if (d < i)
+                    dst = d - 1;
+                /*if (check_obstacles(i, dst))
                 {
-                    int dst = d - 1;
-                    printf("TUBE %i %i;\n", i, dst);
-                    printf("POD %i %i %i %i %i %i %i %i %i;\n", n_pod, i, dst, i, dst, i, dst, i, dst);
-                    n_pod++;
-                    match_types(i, &d);
-                }
+                    if (i + 1 >= b_counter)
+                    {
+                        if (!(check_obstacles(i, i - 1)))
+                            dst = i - 1;
+                    }
+                    else if (!(check_obstacles(i, i + 1)))
+                        dst = i + 1;
+                }*/
+                printf("TUBE %i %i; POD %i %i %i %i %i %i %i %i %i %i %i\n", \
+                    i, dst, n_pod, i, dst, i, dst, i, dst, i, dst, i, dst);
+                n_pod++;
+                j--;
             }
         }
-        //Hemos conseguido que haga algo en casi todos los niveles, pero es poco eficaz; \
-            Además pierde utilidad en los niveles básicos, pero en general saca una mejor \
-            puntuación global.
-
-        /*if (t_counter < b_counter)
-            build_tubes();
-        int c = 0;
-        while (c < b_counter)
-        {
-            int d = match_types(c);
-            if (d)
-            {
-                printf("TUBE %i %i;\n",c, d);
-                continue ;
-            }
-            c++;
-        }*/
-        /*if (num_new_buildings)
-        {
-            if (buildi)
-        }
-            printf("TUBE 0 3;POD 2 0 3 0 3\n");*/
-
-        //printf("TUBE 0 1; POD 0 0 1 0 1 0 1; TUBE 0 2; POD 1 0 2 0 2 0 2;\n");
 
         // Write an action using printf(). DON'T FORGET THE TRAILING \n
         // To debug: fprintf(stderr, "Debug messages...\n");

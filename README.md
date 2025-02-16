@@ -17,3 +17,8 @@ Here you will find solutions based on **advanced automation** and **complex algo
 - A challenge focused on organism growth in a grid-based environment.
 - Each organism had to consume proteins and expand to outgrow its opponents.
 - Strategies were needed to maximize growth and minimize the risk of being surrounded, applying **pathfinding algorithms**, **territorial expansion heuristics**, and **strategic decision automation**.
+
+---
+
+**👨‍💻 Author:** Jorge Sanz 
+**🌍 GitHub:** [JordiDevv](https://github.com/JordiDevv)

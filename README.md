@@ -20,5 +20,5 @@ Here you will find solutions based on **advanced automation** and **complex algo
 
 ---
 
-**👨‍💻 Author:** Jorge Sanz 
+**👨‍💻 Author:** Jorge Sanz  
 **🌍 GitHub:** [JordiDevv](https://github.com/JordiDevv)
